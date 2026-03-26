@@ -606,7 +606,7 @@ Reply ONLY with JSON, no markdown:
     dlBtn.classList.add('show');
   } catch(e) {
     loading.style.display='none'; btn.disabled=false;
-    output.innerHTML=`<div class="ai-tip" style="border-color:rgba(255,71,87,.3)"><strong style="color:var(--red)">⚠️ خطأ</strong>تأكد من اتصال الإنترنت.</div>`;
+    output.innerHTML=`<div class="ai-tip" style="border-color:rgba(255,71,87,.3)"><strong style="color:var(--red)">⚠️ خطأ: </strong>${e.message}</div>`;
   }
 }
 
@@ -656,8 +656,7 @@ Reply ONLY with JSON, no markdown:
     dlBtn.classList.add('show');
   } catch(e) {
     loading.style.display='none'; btn.disabled=false;
-    output.innerHTML=`<div class="ai-tip" style="border-color:rgba(255,71,87,.3)"><strong style="color:var(--red)">⚠️ خطأ</strong>تأكد من اتصال الإنترنت.</div>`;
-  }
+output.innerHTML=`<div class="ai-tip" style="border-color:rgba(255,71,87,.3)"><strong style="color:var(--red)">⚠️ خطأ: </strong>${e.message}</div>`;  }
 }
 
 // ══════════════════════════════════════════
