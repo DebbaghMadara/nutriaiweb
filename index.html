@@ -410,10 +410,22 @@ footer{border-top:1px solid var(--border2);padding:32px 20px;text-align:center;p
 
 <script>
 // ══════════════════════════════════════════
-// API CONFIG — ضع رابط الـ Worker هنا
+// API CONFIG — Cloudflare Worker for Gemini
+// ضع رابط الـ Worker بعد نشره على Cloudflare
 // ══════════════════════════════════════════
-const API_URL = 'https://nutriai-proxy.haitamdebbagh78.workers.dev/';
-// مثال: 'https://nutriai-proxy.haithem.workers.dev'
+const WORKER_URL = 'https://YOUR_WORKER.YOUR_SUBDOMAIN.workers.dev';
+// مثال: 'https://nutriai-gemini.haitamdebbagh78.workers.dev'
+
+async function callGemini(prompt) {
+  const res = await fetch(WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt })
+  });
+  if (!res.ok) throw new Error('Worker error: ' + res.status);
+  const data = await res.json();
+  return data.text.replace(/```json|```/g, '').trim();
+}
 
 // ══════════════════════════════════════════
 // STATE
@@ -575,12 +587,7 @@ Reply ONLY with JSON, no markdown:
 {"meals":[{"time":"Breakfast","emoji":"🍳","name":"Meal name","macros":"Protein 30g | Carbs 45g | Fat 12g","calories":420}],"tip":"Useful tip"}`;
 
   try {
-    const res=await fetch(API_URL,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({max_tokens:1000,messages:[{role:'user',content:prompt}]})
-    });
-    const data=await res.json();
-    const text=data.content.map(i=>i.text||'').join('').replace(/```json|```/g,'').trim();
+    const text = await callGemini(prompt);
     S.mealData=JSON.parse(text);
 
     loading.style.display='none'; btn.disabled=false;
@@ -633,12 +640,7 @@ Reply ONLY with JSON, no markdown:
 {"days":[{"day":"Monday","type":"workout","muscle":"Chest & Triceps","exercises":[{"name":"Bench Press","sets":"4×8","rest":"90s"}]},{"day":"Tuesday","type":"rest"}],"tip":"tip"}`;
 
   try {
-    const res=await fetch(API_URL,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({max_tokens:1200,messages:[{role:'user',content:prompt}]})
-    });
-    const data=await res.json();
-    const text=data.content.map(i=>i.text||'').join('').replace(/```json|```/g,'').trim();
+    const text = await callGemini(prompt);
     S.workoutData=JSON.parse(text);
 
     loading.style.display='none'; btn.disabled=false;
