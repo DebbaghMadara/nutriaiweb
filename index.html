@@ -420,30 +420,22 @@ async function callGemini(prompt) {
   const res = await fetch(WORKER_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      messages: [{ role: 'user', content: prompt }]
-    })
+    // لاحظ هنا: الـ Worker يتوقع "prompt" وليس "messages"
+    body: JSON.stringify({ prompt: prompt }) 
   });
 
   const data = await res.json();
-  console.log("Full Data Received:", data); // سيظهر لك في الـ Console ما الذي وصل فعلياً
+  console.log("Response from Worker:", data);
 
-  let text = "";
+  // التعديل الجوهري: الـ Worker يرسل البيانات في data.text مباشرة
+  let aiText = data.text || "";
 
-  // فحص أمان: التأكد من وجود البيانات قبل قراءتها لمنع خطأ (reading '0')
-  if (data.content && data.content[0] && data.content[0].text) {
-    text = data.content[0].text;
-  } else if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-    // في حال قام الـ Worker بإرسال رد Gemini الخام مباشرة
-    text = data.candidates[0].content.parts[0].text;
-  } else {
-    throw new Error("لم يتم العثور على نص في رد الذكاء الاصطناعي");
+  if (!aiText) {
+    throw new Error("الرد فارغ من الخادم");
   }
 
   // تنظيف النص من علامات الـ Markdown لضمان عمل JSON.parse
-  text = text.replace(/```json|```/g, '').trim(); 
-  
-  return text;
+  return aiText.replace(/```json|```/g, '').trim();
 }
 
 // ══════════════════════════════════════════
