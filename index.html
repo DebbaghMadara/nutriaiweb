@@ -417,7 +417,7 @@ const WORKER_URL = 'https://nutriai-proxy.haitamdebbagh78.workers.dev/';
 // مثال: 'https://nutriai-gemini.haitamdebbagh78.workers.dev'
 
 async function callGemini(prompt) {
-  const res = await fetch(WORKER_URL, {
+  const res = await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -426,9 +426,21 @@ async function callGemini(prompt) {
   });
 
   const data = await res.json();
-  
-  // التعديل هنا: استخراج النص وتنظيفه من علامات ```json
-  let text = data.content[0].text;
+  console.log("Full Data Received:", data); // سيظهر لك في الـ Console ما الذي وصل فعلياً
+
+  let text = "";
+
+  // فحص أمان: التأكد من وجود البيانات قبل قراءتها لمنع خطأ (reading '0')
+  if (data.content && data.content[0] && data.content[0].text) {
+    text = data.content[0].text;
+  } else if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+    // في حال قام الـ Worker بإرسال رد Gemini الخام مباشرة
+    text = data.candidates[0].content.parts[0].text;
+  } else {
+    throw new Error("لم يتم العثور على نص في رد الذكاء الاصطناعي");
+  }
+
+  // تنظيف النص من علامات الـ Markdown لضمان عمل JSON.parse
   text = text.replace(/```json|```/g, '').trim(); 
   
   return text;
