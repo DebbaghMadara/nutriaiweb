@@ -417,7 +417,7 @@ const WORKER_URL = 'https://nutriai-proxy.haitamdebbagh78.workers.dev/';
 // مثال: 'https://nutriai-gemini.haitamdebbagh78.workers.dev'
 
 async function callGemini(prompt) {
-  const res = await fetch(API_URL, {
+  const res = await fetch(WORKER_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
