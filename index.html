@@ -417,14 +417,21 @@ const WORKER_URL = 'https://nutriai-proxy.haitamdebbagh78.workers.dev/';
 // مثال: 'https://nutriai-gemini.haitamdebbagh78.workers.dev'
 
 async function callGemini(prompt) {
-  const res = await fetch(WORKER_URL, {
+  const res = await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt })
+    body: JSON.stringify({
+      messages: [{ role: 'user', content: prompt }]
+    })
   });
-  if (!res.ok) throw new Error('Worker error: ' + res.status);
+
   const data = await res.json();
-  return data.text.replace(/```json|```/g, '').trim();
+  
+  // التعديل هنا: استخراج النص وتنظيفه من علامات ```json
+  let text = data.content[0].text;
+  text = text.replace(/```json|```/g, '').trim(); 
+  
+  return text;
 }
 
 // ══════════════════════════════════════════
