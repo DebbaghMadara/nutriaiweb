@@ -413,29 +413,18 @@ footer{border-top:1px solid var(--border2);padding:32px 20px;text-align:center;p
 // API CONFIG — Cloudflare Worker for Gemini
 // ضع رابط الـ Worker بعد نشره على Cloudflare
 // ══════════════════════════════════════════
-const WORKER_URL = 'https://nutriai-proxy.haitamdebbagh78.workers.dev/';
-// مثال: 'https://nutriai-gemini.haitamdebbagh78.workers.dev'
+// ⬇️ غيّر هذا الرابط برابط Worker تاعك من Cloudflare
+const WORKER_URL = 'https://nutriai-gemini.haitamdebbagh78.workers.dev';
 
 async function callGemini(prompt) {
   const res = await fetch(WORKER_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    // لاحظ هنا: الـ Worker يتوقع "prompt" وليس "messages"
-    body: JSON.stringify({ prompt: prompt }) 
+    body: JSON.stringify({ prompt })
   });
-
+  if (!res.ok) throw new Error('Worker error: ' + res.status);
   const data = await res.json();
-  console.log("Response from Worker:", data);
-
-  // التعديل الجوهري: الـ Worker يرسل البيانات في data.text مباشرة
-  let aiText = data.text || "";
-
-  if (!aiText) {
-    throw new Error("الرد فارغ من الخادم");
-  }
-
-  // تنظيف النص من علامات الـ Markdown لضمان عمل JSON.parse
-  return aiText.replace(/```json|```/g, '').trim();
+  return data.text.replace(/```json|```/g, '').trim();
 }
 
 // ══════════════════════════════════════════
@@ -452,7 +441,7 @@ const S = {
 // TRANSLATIONS
 // ══════════════════════════════════════════
 const TR = {
-  'hero-badge':{ar:'🤖 مدعوم بـ Claude AI',en:'🤖 Powered by Claude AI'},
+  'hero-badge':{ar:'🤖 مدعوم بـ Gemini AI',en:'🤖 Powered by Gemini AI'},
   'hl1':{ar:'احسب',en:'CALCULATE'},'hl2':{ar:'احتياجاتك',en:'YOUR NEEDS'},'hl3':{ar:'وابدأ رحلتك',en:'START YOUR JOURNEY'},
   'hero-sub':{ar:'نظام غذائي مخصص + برنامج تمرين احترافي مولّد بالذكاء الاصطناعي — مع خيار قليل التكلفة وتحميل PDF',en:'Custom meal plan + professional workout program by AI — with budget option and PDF download'},
   'hero-cta1':{ar:'احسب الآن مجاناً 🚀',en:'Calculate Now Free 🚀'},'hero-cta2':{ar:'كيف يعمل؟',en:'How it works?'},
@@ -483,7 +472,7 @@ const TR = {
   'ft4':{ar:'برنامج جيم أسبوعي',en:'Weekly Gym Program'},'fd4':{ar:'برنامج تمرين كامل 7 أيام مصمم ليتوافق مع نظامك الغذائي وهدفك.',en:'Full 7-day workout program designed to complement your diet and goal.'},
   'ft5':{ar:'تحميل PDF',en:'PDF Download'},'fd5':{ar:'احفظ نظامك الغذائي وبرنامج تمرينك كـ PDF احترافي جاهز للطباعة.',en:'Save your meal plan and workout as a professional printable PDF.'},
   'ft6':{ar:'عربي وإنجليزي',en:'Arabic & English'},'fd6':{ar:'واجهة ثنائية اللغة مع دعم RTL احترافي للمستخدم العربي.',en:'Bilingual interface with professional RTL support for Arabic users.'},
-  'footer-text':{ar:'مساعدك الغذائي والرياضي الذكي • مدعوم بـ Claude AI • مجاني 100%',en:'Your Smart Nutrition & Fitness Assistant • Powered by Claude AI • 100% Free'},
+  'footer-text':{ar:'مساعدك الغذائي والرياضي الذكي • مدعوم بـ Gemini AI • مجاني 100%',en:'Your Smart Nutrition & Fitness Assistant • Powered by Gemini AI • 100% Free'},
 };
 
 function setLang(l) {
@@ -617,7 +606,7 @@ Reply ONLY with JSON, no markdown:
     dlBtn.classList.add('show');
   } catch(e) {
     loading.style.display='none'; btn.disabled=false;
-    output.innerHTML=`<div class="ai-tip" style="border-color:rgba(255,71,87,.3)"><strong style="color:var(--red)">⚠️ خطأ: </strong>${e.message}</div>`;
+    output.innerHTML=`<div class="ai-tip" style="border-color:rgba(255,71,87,.3)"><strong style="color:var(--red)">⚠️ خطأ</strong>تأكد من اتصال الإنترنت.</div>`;
   }
 }
 
@@ -667,7 +656,8 @@ Reply ONLY with JSON, no markdown:
     dlBtn.classList.add('show');
   } catch(e) {
     loading.style.display='none'; btn.disabled=false;
-output.innerHTML=`<div class="ai-tip" style="border-color:rgba(255,71,87,.3)"><strong style="color:var(--red)">⚠️ خطأ: </strong>${e.message}</div>`;  }
+    output.innerHTML=`<div class="ai-tip" style="border-color:rgba(255,71,87,.3)"><strong style="color:var(--red)">⚠️ خطأ</strong>تأكد من اتصال الإنترنت.</div>`;
+  }
 }
 
 // ══════════════════════════════════════════
